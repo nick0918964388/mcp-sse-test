@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  mcp-sse-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-sse-server
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    environment:
+      - NODE_ENV=production
+      - PORT=8083
+      - LOG_LEVEL=info
+      - HEARTBEAT_INTERVAL=30000
+      - ALLOWED_ORIGINS=*
+    volumes:
+      # 如果需要持久化日志，可以掛載日志目錄
+      - ./logs:/app/logs
+    networks:
+      - mcp-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  mcp-network:
+    driver: bridge 
