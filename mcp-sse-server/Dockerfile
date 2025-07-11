@@ -7,14 +7,17 @@ WORKDIR /app
 # 複製 package.json 和 package-lock.json
 COPY package*.json ./
 
-# 安裝依賴
-RUN npm ci --only=production
+# 安裝所有依賴（包括 devDependencies 用於構建）
+RUN npm ci
 
 # 複製源代碼
 COPY . .
 
 # 構建 TypeScript 項目
 RUN npm run build
+
+# 移除開發依賴，只保留生產依賴
+RUN npm ci --only=production && npm cache clean --force
 
 # 複製並設置入口腳本權限
 COPY docker-entrypoint.sh /usr/local/bin/
